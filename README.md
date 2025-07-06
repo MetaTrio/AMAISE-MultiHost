@@ -69,3 +69,16 @@ Run Time for Classifying Demo Data: AMAISE takes 42 seconds to classify the demo
 
 # AMAISE-MultiHost (CNN)
 
+## 📁 Project Structure
+
+| File / Script | Description |
+|---------------|-------------|
+| `host_depletion.py` | Run host depletion on a metagenomic file |
+| `tltrain_low_ram_separate_train_val_datasets.py` | Train model from scratch using separate training/validation sets |
+| `re-train_low_ram_separate_train_val_datasets.py` | Transfer learning with frozen layers using pretrained model |
+| `evaluation_binary_true_pred_lables_no_clash.py` | Evaluate binary classification model output |
+| `Models/` | Contains pretrained or user-trained CNN models |
+| `demo_test_data/` | Contains demo `.fastq` files for testing (add your own) |
+
+
+
