@@ -9,7 +9,8 @@ inc2 = 1000
 lim = 400000000*3
 
 # All sequences that are greater in length than max_len are truncated to length max_len. 
-max_len = 6000
+# max_len = 6000
+max_len = 12000
 
 # The batch size that we use for testing is batch_max_len/L where L is the length of the sequences in the batch 
 batch_max_len = 900000

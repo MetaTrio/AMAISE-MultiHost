@@ -136,6 +136,80 @@ class TCN(nn.Module):
         output = self.fc(output)
         return output
 
+
+'''
+Inputs:
+none
+
+Outputs:
+TCN: AMAISE's architecture, which consists of 4 convolutional layers, a global average pooling layer, and 1 fully connected layer. Each convolutional layer in AMAISE contains 128 filters of length 15. We applied a rectified-linear unit activation function and an average pooling layer of length 5 after each convolutional layer.
+
+The class TCN contains AMAISE's architecture
+'''
+class TCN_MC(nn.Module):
+    def __init__(self):
+        num_input_channels = 4
+        num_output_channels = 128
+        filter_size = 15
+        num_classes = 5
+        pool_amt = 5
+        
+        super().__init__()
+        self.c_in1 = nn.Conv1d(num_input_channels, num_output_channels, kernel_size = filter_size, padding = (filter_size - 1)//2, padding_mode='zeros')
+        self.c_in2 = nn.Conv1d(num_output_channels, num_output_channels, kernel_size = filter_size, padding = (filter_size - 1)//2, padding_mode='zeros')
+        self.c_in3 = nn.Conv1d(num_output_channels, num_output_channels, kernel_size = filter_size, padding = (filter_size - 1)//2, padding_mode='zeros')
+        self.c_in4 = nn.Conv1d(num_output_channels, num_output_channels, kernel_size = filter_size, padding = (filter_size - 1)//2, padding_mode='zeros')
+        self.fc = nn.Linear(num_output_channels, num_classes)
+        self.pool = nn.AvgPool1d(pool_amt)
+        self.pad = nn.ConstantPad1d((pool_amt - 1)//2 + 1, 0)
+        
+        self.filter_size = filter_size
+        self.pool_amt = pool_amt
+        
+        
+    def forward(self, x):
+        x = x.transpose(2, 1)
+        
+        old_shape = x.shape[2]
+        if x.shape[2] < self.pool_amt:
+            x = self.pad(x)
+        new_shape = x.shape[2]
+        
+        output = self.c_in1(x)
+        output = torch.relu(output)
+        output = self.pool(output)*(new_shape/old_shape)
+        
+        old_shape = output.shape[2]
+        if output.shape[2] < self.pool_amt:
+            output = self.pad(output)
+        new_shape = output.shape[2]
+                
+        output = self.c_in2(output)
+        output = torch.relu(output)
+        output = self.pool(output)*(new_shape/old_shape)
+        
+        old_shape = output.shape[2]
+        if output.shape[2] < self.pool_amt:
+            output = self.pad(output)
+        new_shape = output.shape[2]
+                
+        output = self.c_in3(output)
+        output = torch.relu(output)
+        output = self.pool(output)*(new_shape/old_shape)
+        
+        old_shape = output.shape[2]
+        if output.shape[2] < self.pool_amt:
+            output = self.pad(output)
+        new_shape = output.shape[2]
+                
+        output = self.c_in4(output)
+        output = torch.relu(output)
+        
+        last_layer = nn.AvgPool1d(output.size(2))
+        output = last_layer(output).reshape(output.size(0), output.size(1))*(new_shape/old_shape)
+        output = self.fc(output)
+        return output
+
 '''
 Inputs:
 typefile: 'fastq' if testfile is a fastq files, and 'fasta' if testfile is a fasta files
@@ -149,8 +223,8 @@ all_filelens: an array of lists containing the lengths that can be written to me
 create_filelens_paired returns lists containing the information needed to bin the input sequences by length for efficient classification.
 '''
 def create_filelens(typefile, testfile):
-    num_len = {}
-    orig_filelens = []
+    num_len = {}  # A dictionary where keys are the bin sizes (sequence lengths), and values are the counts of sequences that fall into each bin.
+    orig_filelens = []  # A sorted list of unique bin sizes
     if typefile == 'fastq':
         for title, seq, qual in FastqGeneralIterator(open(testfile)):
             if len(seq) < seq_cutoff:
@@ -170,7 +244,7 @@ def create_filelens(typefile, testfile):
                 inc = inc1
             else:
                 inc = inc2
-            final_i = (len(seq)//inc) * inc
+            final_i = ( (len(seq)//inc)) * inc
             if final_i in num_len.keys():
                 num_len[final_i] += 1
             else:
@@ -182,15 +256,22 @@ def create_filelens(typefile, testfile):
     all_filelens = []
     curr_filelens = []
     curr_count = 0
+
+    #print(num_len)  # {12000: 1486246, 8000: 203364, 11000: 135580, 9000: 174700, 10000: 152232, 7000: 247878}
+    #print(orig_filelens)  # [7000, 8000, 9000, 10000, 11000, 12000]
+
     for i in orig_filelens:
         if curr_count + num_len[i]*i > lim:
-            all_filelens.append(curr_filelens)
+            # all_filelens.append(curr_filelens)
+            if curr_filelens:  # Only append if curr_filelens is not empty
+                all_filelens.append(curr_filelens)
             curr_filelens = []
             curr_count = 0
         if num_len[i] > 0:
             curr_count += num_len[i]*i
             curr_filelens.append(i)
     all_filelens.append(curr_filelens)
+    #print("all_filelens", all_filelens)
     return orig_filelens, all_filelens
 
 '''
@@ -269,7 +350,25 @@ def write_output(typefile, outputwritefile, g, id_, seq_, len_, pred_, qual_):
     label = 1
     if pred_ < threshs[final_len]:
         label = 0
+    outputwritefile.write('%s, %d, %d, %.4f\n' % (id_, label, len_, pred_))
+    # if pred_ < threshs[final_len]:
+    #     if typefile == 'fastq':
+    #         g.write('@%s\n'%id_)
+    #     else:
+    #         g.write('>%s\n'%id_)
+    #     g.write('%s\n'%seq_)
+    #     if typefile == 'fastq':
+    #         g.write('+\n')
+    #         g.write('%s\n'%qual_)
+
+
+def write_output_of_microbial_classification(typefile, outputwritefile, g, id_, seq_, len_, pred_, qual_):
+    final_len = closest(list(threshs.keys()), len_)
+    label = pred_
+    # if pred_ < threshs[final_len]: # microbial = 0
+    #     label = 0
     outputwritefile.write('%s, %d, %d\n'%(id_, label, len_))
+    # write microbial reads to the output fasta/fastq file (*** CHANGE THIS ***)
     if pred_ < threshs[final_len]:
         if typefile == 'fastq':
             g.write('@%s\n'%id_)
@@ -279,3 +378,4 @@ def write_output(typefile, outputwritefile, g, id_, seq_, len_, pred_, qual_):
         if typefile == 'fastq':
             g.write('+\n')
             g.write('%s\n'%qual_)
+
