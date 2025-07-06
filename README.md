@@ -81,4 +81,26 @@ Run Time for Classifying Demo Data: AMAISE takes 42 seconds to classify the demo
 | `demo_test_data/` | Contains demo `.fastq` files for testing  |
 
 
+## Usage Notes for AMAISE-MultiHost (CNN)
+
+To train a new model for a new host, use the command
+
+python3 tltrain_low_ram_separate_train_val_datasets.py -i **train_fasta** -l **train_labels_csv** -vi **val_fasta**  -vl **val_labels_csv** -n **output_model_path** -o **output_log_path** -e **epochs**
+
+To retain an originally trained model, use the command
+
+python3 re-train_low_ram_separate_train_val_datasets.py -i **train_fasta** -l **train_labels_csv** -vi **val_fasta** -vl **val_labels_csv** -n **output_model_path** -p **pretrained_model_path** -o **output_log_path** -e **num_epochs** -lr **learning_rate**
+
+For host depletion,
+python3 host_depletion_amaise_new_models.py -i **input_file** -t **file_type** -o **output_folder** -m **trained_model_path**
+(File type is either fastq or fasta)
+
+For evaluation,
+python3 evaluation_binary_true_pred_lables_no_clash.py -p **path_to_predictions/mlprobs.txt** -t **true_labels.csv** -o **output_log**
+
+
+
+
+
+
 
