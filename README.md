@@ -1,4 +1,4 @@
-# CNN_AMAISE
+# AMAISE
 
 AMAISE (A Machine Learning Approach to Index-Free Sequence Enrichment) is a novel, index-free host depletion tool. Given a set of single-end reads, for each sequence, AMAISE outputs a classification label determining whether the sequence is from a host or a microbe (0 for microbe, 1 for host). AMAISE then stores all the microbial sequences in a file for downstream analysis
 
@@ -66,3 +66,6 @@ We mimic a "Normal" Desktop Computer with a Google Cloud Platform Virtual Machin
 Run Time for Classifying Test Sets: AMAISE takes 44.6 minutes to classify the Nanopore test set.
 
 Run Time for Classifying Demo Data: AMAISE takes 42 seconds to classify the demo Nanopore data.
+
+# AMAISE-MultiHost (CNN)
+
