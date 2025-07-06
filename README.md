@@ -95,13 +95,13 @@ To retain an originally trained model, use the command
 ```bash
 python3 re-train_low_ram_separate_train_val_datasets.py -i <train_fasta> -l <train_labels_csv> -vi <val_fasta> -vl <val_labels_csv> -n <output_model_path> -p <pretrained_model_path> -o <output_log_path> -e <num_epoch> -lr <learning_rate>
 ```
-For host depletion,
+For host depletion, use the command
 ```bash
 python3 host_depletion_amaise_new_models.py -i <input_file> -t <file_type> -o <output_folder> -m <trained_model_path>
 ```
 (File type is either fastq or fasta)
 
-For evaluation,
+For evaluation, use the command
 ```bash
 python3 evaluation_binary_true_pred_lables_no_clash.py -p <path_to_predictions/mlprobs.txt> -t <true_labels.csv> -o <output_log>
 ```
