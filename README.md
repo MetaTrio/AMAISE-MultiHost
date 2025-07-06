@@ -1,4 +1,4 @@
-# AMAISE
+# CNN_AMAISE
 
 AMAISE (A Machine Learning Approach to Index-Free Sequence Enrichment) is a novel, index-free host depletion tool. Given a set of single-end reads, for each sequence, AMAISE outputs a classification label determining whether the sequence is from a host or a microbe (0 for microbe, 1 for host). AMAISE then stores all the microbial sequences in a file for downstream analysis
 
