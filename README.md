@@ -69,6 +69,8 @@ Run Time for Classifying Demo Data: AMAISE takes 42 seconds to classify the demo
 
 # AMAISE-MultiHost (CNN)
 
+**AMAISE-MultiHost** is a CNN-based host depletion and classification tool capable of being trained on different host genomes. This tool allows users to train models from scratch, perform transfer learning with existing models, deplete host reads from metagenomic samples, and evaluate classification performance.
+
 ## 📁 Project Structure
 
 | File / Script | Description |
@@ -85,10 +87,11 @@ Run Time for Classifying Demo Data: AMAISE takes 42 seconds to classify the demo
 
 To train a new model for a new host, use the command
 
+```markdown
 python3 tltrain_low_ram_separate_train_val_datasets.py -i **train_fasta** -l **train_labels_csv** -vi **val_fasta**  -vl **val_labels_csv** -n **output_model_path** -o **output_log_path** -e **epochs**
 
 To retain an originally trained model, use the command
-
+```markdown
 python3 re-train_low_ram_separate_train_val_datasets.py -i **train_fasta** -l **train_labels_csv** -vi **val_fasta** -vl **val_labels_csv** -n **output_model_path** -p **pretrained_model_path** -o **output_log_path** -e **num_epochs** -lr **learning_rate**
 
 For host depletion,
